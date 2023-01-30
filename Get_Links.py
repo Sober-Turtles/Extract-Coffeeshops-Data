@@ -37,8 +37,9 @@ def find_links_of_city(city, page, path = 'https://fidilio.com' , place_type = '
 
 
 cities = find_cities()
-datas = []
+save_path = 'Links_by_City'
 for city in cities:
+    datas = []
     for i in range(find_count_of_pages(city)):
         links = find_links_of_city(city,i)
         for link in links:
@@ -49,6 +50,8 @@ for city in cities:
                 name = ''
             x = {'City': city ,'Name': name ,'Link': link }
             datas.append(x)
+    to_save = np.array(datas)
+    np.save(f'{save_path}/{city}_links_names',to_save)
 
-to_save = np.array(datas)
-np.save('city_links_names',to_save)
+cities = np.array(cities)
+np.save('All_cities',cities)
