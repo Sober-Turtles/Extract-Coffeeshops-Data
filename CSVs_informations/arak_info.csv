@@ -1,6 +1,6 @@
-,Persian Name,Address,Phone Number,Is Open,Price_Class,Rate
+Name,Persian Name,Address,Phone Number,Is Open,Price_Class,Rate
 boote,بوته,میدان راه اهن،ابتدای شریعتی,08634021212,12-24,2,8.2
-amirkhan-arak,امیرخان,سه راه ارامنه انتهای خیابان نیسانیان,,12-24,2,8.1
+amirkhan-arak,امیرخان,سه راه ارامنه انتهای خیابان نیسانیان,null,12-24,2,8.1
 tishini-arak,تی شی نی,شهر صنعتی میدان پامچال,08633139371,12-24,2,null
 caracal-arak,کاراکال,خیابان دانشگاه ، روبروی دانشگاه سما,34057080,9-24,1,3.8
 cinemaasrejadid-arak,سینما عصر جدید,ابتداي خيابان ملک ، سينما عصر جديد,32247444,11-23:30,1,5.2
