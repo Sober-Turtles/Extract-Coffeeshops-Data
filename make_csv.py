@@ -40,6 +40,7 @@ df_cafe = pd.DataFrame(columns = ['name_en', 'name_fa','city_id','price_class','
 df_address = pd.DataFrame(columns = ['city_id','detail'])
 df_phone = pd.DataFrame(columns=['phone_number'])
 df_city = pd.DataFrame(columns=['name'])
+df_is_open = pd.DataFrame(columns=['cafe_id','open','close'])
 
 save_path = './CSV_FOR_DATABASE'
 path = './CSVs_informations'
@@ -62,6 +63,15 @@ for city in cities:
                 if df_features_cafe['Phone Number'][ind]:
                     df_phone.loc[len(df_phone.index)] = [df_features_cafe['Phone Number'][ind]]
 
+                if df_features_cafe['Is Open'][ind] != np.nan:
+                    for i in str(df_features_cafe['Is Open'][ind]).split('/'):
+                        df_is_open['cafe_id'][len(df_is_open.index)] = len(df_cafe.index)
+                        time = str(i).split('-')
+                        try :
+                            df_is_open.loc[len(df_is_open.index)] = [len(df_cafe.index), time[0], time[1]]
+                        except IndexError:
+                            pass
+
                 df_cafe.loc[len(df_cafe.index)] = [df_features_cafe['Name'][ind],
                                         df_features_cafe['Persian Name'][ind],
                                         city_id,df_features_cafe['Price_Class'][ind],
@@ -81,6 +91,14 @@ for city in cities:
             if df_features_cafe['Phone Number'][ind] != np.nan:
                 df_phone.loc[len(df_phone.index)] = [df_features_cafe['Phone Number'][ind]]
 
+            if df_features_cafe['Is Open'][ind] != np.nan:
+                    for i in str(df_features_cafe['Is Open'][ind]).split('/'):
+                        time = str(i).split('-')
+                        try :
+                            df_is_open.loc[len(df_is_open.index)] = [len(df_cafe.index), time[0], time[1]]
+                        except IndexError:
+                            pass
+
             df_cafe.loc[len(df_cafe.index)] = [df_features_cafe['Name'][ind],
                                     df_features_cafe['Persian Name'][ind],
                                     city_id,df_features_cafe['Price_Class'][ind],
@@ -88,11 +106,19 @@ for city in cities:
     
 df_address = df_address.dropna()
 df_phone = df_phone.dropna()
+df_is_open = df_is_open.dropna()
 
+
+for ind in df_is_open.index:
+    if ':' not in df_is_open['open'][ind]:
+        df_is_open['open'][ind] =  str(df_is_open['open'][ind]) + ':00'
+    if ':' not in df_is_open['close'][ind]:
+        df_is_open['close'][ind] =  str(df_is_open['close'][ind]) + ':00'
 
 df_cafe.drop(columns=['rate']).to_csv(f'{save_path}/Cafe.csv',na_rep= None) 
 df_address.to_csv(f'{save_path}/Address.csv',na_rep= None)    
 df_phone.to_csv(f'{save_path}/Phone_number.csv',na_rep= None) 
+df_is_open.to_csv(f'{save_path}/Time_table.csv',na_rep= None)
 df_city.to_csv(f'{save_path}/City.csv') 
 
 #___FEATURES 
