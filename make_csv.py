@@ -36,8 +36,8 @@ cities = np.load('All_cities.npy',allow_pickle = True)
 
 #___INFORMATIONS
 
-df_cafe = pd.DataFrame(columns = ['name_en', 'name_fa','address_id','city_id','price_class','rate'])
-df_address = pd.DataFrame(columns = ['detail'])
+df_cafe = pd.DataFrame(columns = ['name_en', 'name_fa','city_id','price_class','rate'])
+df_address = pd.DataFrame(columns = ['city_id','detail'])
 df_phone = pd.DataFrame(columns=['phone_number'])
 df_city = pd.DataFrame(columns=['name'])
 
@@ -56,13 +56,16 @@ for city in cities:
             for ind in df_features_cafe.index:
                 city_dict.update({df_features_cafe['Name'][ind]:len(df_cafe.index)})
 
-                df_cafe.loc[len(df_cafe.index)] = [df_features_cafe['Name'][ind],
-                                                    df_features_cafe['Persian Name'][ind],
-                                                    len(df_cafe.index),city_id,df_features_cafe['Price_Class'][ind],
-                                                    df_features_cafe['Rate'][ind]]
+                if df_features_cafe['Address'][ind]:
+                    df_address.loc[len(df_address.index)] = [city_id,df_features_cafe['Address'][ind]]
 
-                df_address.loc[len(df_address.index)] = [df_features_cafe['Address'][ind]]
-                df_phone.loc[len(df_phone.index)] = [df_features_cafe['Phone Number'][ind]]
+                if df_features_cafe['Phone Number'][ind]:
+                    df_phone.loc[len(df_phone.index)] = [df_features_cafe['Phone Number'][ind]]
+
+                df_cafe.loc[len(df_cafe.index)] = [df_features_cafe['Name'][ind],
+                                        df_features_cafe['Persian Name'][ind],
+                                        city_id,df_features_cafe['Price_Class'][ind],
+                                        df_features_cafe['Rate'][ind]]
 
     else:
         df_city.loc[len(df_city.index)] = [city]
@@ -71,19 +74,25 @@ for city in cities:
         df_features_cafe.rename(columns={'Unnamed: 0': 'Name'}, inplace=True)
         for ind in df_features_cafe.index:
             city_dict.update({df_features_cafe['Name'][ind]:len(df_cafe.index)})
+
+            if df_features_cafe['Address'][ind] != np.nan:
+                df_address.loc[len(df_address.index)] = [city_id,df_features_cafe['Address'][ind]]
+
+            if df_features_cafe['Phone Number'][ind] != np.nan:
+                df_phone.loc[len(df_phone.index)] = [df_features_cafe['Phone Number'][ind]]
+
             df_cafe.loc[len(df_cafe.index)] = [df_features_cafe['Name'][ind],
-                                                df_features_cafe['Persian Name'][ind],
-                                                len(df_cafe.index),
-                                                city_id,df_features_cafe['Price_Class'][ind],
-                                                df_features_cafe['Rate'][ind]]
-
-            df_address.loc[len(df_address.index)] = [df_features_cafe['Address'][ind]]
-            df_phone.loc[len(df_phone.index)] = [df_features_cafe['Phone Number'][ind]]
+                                    df_features_cafe['Persian Name'][ind],
+                                    city_id,df_features_cafe['Price_Class'][ind],
+                                    df_features_cafe['Rate'][ind]]
     
+df_address = df_address.dropna()
+df_phone = df_phone.dropna()
 
-df_cafe.to_csv(f'{save_path}/Cafe.csv') 
-df_address.to_csv(f'{save_path}/Address.csv')    
-df_phone.to_csv(f'{save_path}/Phone_number.csv') 
+
+df_cafe.drop(columns=['rate']).to_csv(f'{save_path}/Cafe.csv',na_rep= None) 
+df_address.to_csv(f'{save_path}/Address.csv',na_rep= None)    
+df_phone.to_csv(f'{save_path}/Phone_number.csv',na_rep= None) 
 df_city.to_csv(f'{save_path}/City.csv') 
 
 #___FEATURES 
@@ -91,7 +100,7 @@ df_city.to_csv(f'{save_path}/City.csv')
 features_tabel,features_dict = make_features()
 features_tabel.to_csv(f'{save_path}/Features.csv') 
 
-df_features_cafe = pd.DataFrame(columns = ['cafe_name', 'feature_id'])
+df_features_cafe = pd.DataFrame(columns = ['cafe_id', 'feature_id'])
 path = './Features_Numpy'
 
 for city in cities:
@@ -117,7 +126,8 @@ for city in cities:
                 except KeyError:
                     pass
 
-df_features_cafe.to_csv(f'{save_path}/Features_Cafe.csv') 
+# df_features_cafe = df_features_cafe.astype(object).where(pd.notnull(df_features_cafe), None)
+df_features_cafe.to_csv(f'{save_path}/Features_Cafe.csv',na_rep= None) 
 
 #__RATE
 
@@ -133,10 +143,15 @@ for city in cities:
 
             for ind in datas_rate.index:
                 if datas_rate['Name'][ind] in exist_names:
+                    cafe_id = len(df_rate.index)
+                    # if (datas_rate['Food'][ind] != np.nan 
+                    #             and datas_rate['Servic'][ind] != np.nan
+                    #             and datas_rate['Worth(Price)'][ind] != np.nan
+                    #             and datas_rate['Design'][ind] != np.nan ):
                     df_rate.loc[len(df_rate.index)] = [datas_rate['Food'][ind],
                                                         datas_rate['Servic'][ind],
                                                         datas_rate['Worth(Price)'][ind],
-                                                        datas_rate['Design'][ind]] 
+                                                        datas_rate['Design'][ind]]
 
     else:
         datas_rate = pd.read_csv(f'{path}/{city}_rates.csv')
@@ -144,10 +159,19 @@ for city in cities:
 
         for ind in datas_rate.index:
             if datas_rate['Name'][ind] in exist_names:
+                cafe_id = len(df_rate.index)
+                # if (datas_rate['Food'][ind] != np.nan 
+                #             and datas_rate['Servic'][ind] != np.nan
+                #             and datas_rate['Worth(Price)'][ind] != np.nan
+                #             and datas_rate['Design'][ind] != np.nan ):
                 df_rate.loc[len(df_rate.index)] = [datas_rate['Food'][ind],
                                                     datas_rate['Servic'][ind],
                                                     datas_rate['Worth(Price)'][ind],
-                                                    datas_rate['Design'][ind]] 
+                                                    datas_rate['Design'][ind]]
 
-                
-df_rate.to_csv(f'{save_path}/Rates.csv') 
+df_overal_rate = df_cafe[['rate']]
+df_overal_rate.replace('None',np.nan,inplace=True)
+df_overal_rate.dropna(inplace=True)
+df_rate.dropna(inplace=True)
+
+df_rate.to_csv(f'{save_path}/Rates.csv',na_rep= None) 
